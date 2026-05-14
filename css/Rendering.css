@@ -1,167 +1,179 @@
-/* --- Material Design 3 Tokens --- */
 :root {
-    --md-sys-color-primary: #6750A4;
-    --md-sys-color-on-primary-container: #21005D;
-    --md-sys-color-primary-container: #EADDFF;
-    --md-sys-color-secondary-container: #E8DEF8;
-    --md-sys-color-on-secondary-container: #1D192B;
-    --md-sys-color-surface: #FEF7FF;
-    --md-sys-color-on-surface: #1D1B20;
-    --md-sys-color-on-surface-variant: #49454F;
-    --md-sys-color-surface-container-low: #F7F2FA;
-    --md-sys-color-surface-container: #F3EDF7;
-    --md-sys-color-surface-container-high: #ECE6F0;
-    --md-sys-color-surface-container-highest: #E6E0E9;
-    --md-sys-color-outline-variant: #CAC4D0;
-    --md-sys-shape-large: 16px;
-    --md-sys-shape-medium: 12px;
+	--md-sys-color-primary: #6750A4;
+	--md-sys-color-surface: #FEF7FF;
+	--md-sys-color-on-surface: #1D1B20;
+	--md-sys-color-surface-container-low: #F7F2FA;
+	--md-sys-color-surface-container: #F3EDF7;
+	--md-sys-color-outline-variant: #CAC4D0;
+	--md-sys-shape-large: 16px;
+	--md-sys-shape-medium: 12px;
 }
 
-/* --- Base Styles --- */
 body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background-color: var(--md-sys-color-surface);
-    color: var(--md-sys-color-on-surface);
-    margin: 0; padding: 20px;
-    line-height: 1.5;
+	font-family: system-ui, -apple-system, sans-serif;
+	background: var(--md-sys-color-surface);
+	margin: 0;
+	padding: 20px;
 }
 
 header h2 {
-    text-align: center;
-    color: var(--md-sys-color-primary);
-    font-weight: 400; margin-bottom: 24px;
+	text-align: center;
+	color: var(--md-sys-color-primary);
+	font-weight: 400;
 }
 
-/* --- Layout --- */
 .container {
-    display: flex; gap: 24px;
-    max-width: 1300px; margin: 0 auto;
+	display: flex;
+	gap: 24px;
+	max-width: 1400px;
+	margin: 0 auto;
+	align-items: flex-start;
 }
 
 .controls {
-    background-color: var(--md-sys-color-surface-container-low);
-    padding: 24px; border-radius: var(--md-sys-shape-large);
-    width: 320px; flex-shrink: 0;
+	width: 320px;
+	flex-shrink: 0;
+	background: var(--md-sys-color-surface-container-low);
+	padding: 24px;
+	border-radius: var(--md-sys-shape-large);
 }
 
 .plot-area {
-    flex-grow: 1; height: 650px; overflow: hidden;
-    background-color: var(--md-sys-color-surface-container);
-    border-radius: var(--md-sys-shape-large);
+	flex-grow: 1;
+	height: 850px;
+	background: var(--md-sys-color-surface-container);
+	border-radius: var(--md-sys-shape-large);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 }
 
-/* --- Components --- */
-.control-group { margin-bottom: 16px; }
-label {
-    display: block; font-size: 0.9rem; font-weight: 500;
-    margin-bottom: 8px; color: var(--md-sys-color-on-surface-variant);
+#plot-div {
+	flex: 3;
+	width: 100%;
 }
 
-input[type=range] { width: 100%; accent-color: var(--md-sys-color-primary); }
+#time-plot-div {
+	flex: 2;
+	width: 100%;
+	border-top: 1px solid var(--md-sys-color-outline-variant);
+}
 
-.divider { border: 0; border-top: 1px solid var(--md-sys-color-outline-variant); margin: 20px 0; }
+.control-group label {
+	display: block;
+	font-size: 0.85rem;
+	font-weight: 600;
+	margin: 12px 0 6px;
+	color: #49454F;
+}
 
-/* --- 1. 按钮网格间距优化 --- */
+input[type=range] {
+	width: 100%;
+	accent-color: var(--md-sys-color-primary);
+}
+
+.divider {
+	border: 0;
+	border-top: 1px solid var(--md-sys-color-outline-variant);
+	margin: 20px 0;
+}
+
+/* --- 快速探索示例区域优化 --- */
 .preset-buttons {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    /* 增加行间距(row-gap)和列间距(column-gap) */
-    gap: 12px; 
-    margin-bottom: 20px;
+    grid-template-columns: 1fr 1fr; /* 保持两列 */
+    
+    /* 核心修改：column-gap 设置水平间距，row-gap 设置行间距 */
+    column-gap: 12px; 
+    row-gap: 16px;    /* 增加行间距，防止按钮上下粘连 */
+    
+    margin-bottom: 20px; /* 与下方描述框的距离 */
 }
 
-/* --- 2. 按钮自身外观优化 --- */
 .m3-btn {
-    background-color: var(--md-sys-color-surface-container-high);
+    background: #ECE6F0;
     color: var(--md-sys-color-primary);
     border: 1px solid var(--md-sys-color-outline-variant);
-    /* 增加上下内边距，使按钮更厚实，符合 M3 触控标准 */
-    padding: 12px 8px; 
+    
+    /* 增加垂直 padding 让按钮看起来更饱满，符合 M3 触控标准 */
+    padding: 12px 10px; 
+    
     border-radius: 12px;
-    font-size: 0.8rem; /* 稍微调大一点字号 */
-    font-weight: 600;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    /* 强制单行显示，防止长文本折行导致按钮高度不一 */
-    white-space: nowrap; 
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.8rem; /* 稍微增加字号，增加可读性 */
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* 确保文字在按钮内垂直居中且不拥挤 */
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.m3-btn:hover { background-color: var(--md-sys-color-primary-container); border-color: var(--md-sys-color-primary); }
-.m3-btn:active { transform: scale(0.95); }
-
-/* 3. 增强 Note 区域的视觉独立性 */
-.note {
-    position: relative;
-    padding: 16px;
-    /* 关键修改：增加明显的顶部外边距 */
-    margin-top: 40px; 
-    cursor: help;
-    background-color: var(--md-sys-color-surface-container-high);
-    border-radius: var(--md-sys-shape-medium);
-    font-size: 0.85rem;
-    /* 增加一个虚线装饰边框，使其看起来像一个“附注”区域 */
-    border: 1px dashed var(--md-sys-color-outline-variant);
+/* 按钮悬浮效果：增加微小的阴影提升层级感 */
+.m3-btn:hover {
+    background: #EADDFF;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* 4. 在 Note 上方增加一个装饰性的视觉分割（可选） */
-.note::before {
-    content: "";
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 4px;
-    background-color: var(--md-sys-color-outline-variant);
-    border-radius: 2px;
-    opacity: 0.3;
+/* 优化示例标题的间距 */
+.observation-section h4 {
+    font-size: 0.9rem;
+    margin-bottom: 16px; /* 增加标题和第一排按钮之间的距离 */
+    color: var(--md-sys-color-primary);
 }
 
-.note:hover { background-color: var(--md-sys-color-primary-container); }
-
-.tooltip-box {
-    visibility: hidden; opacity: 0; z-index: 999;
-    position: absolute; bottom: 20px; left: 105%; width: 340px;
-    background-color: var(--md-sys-color-surface-container-highest);
-    padding: 20px; border-radius: var(--md-sys-shape-large);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    border: 1px solid var(--md-sys-color-outline-variant);
-    backdrop-filter: blur(10px);
-    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-    transform: translateX(-10px); pointer-events: none;
-}
-.note:hover .tooltip-box { visibility: visible; opacity: 1; transform: translateX(10px); }
-
-/* 1. 增加观察示例区域的底部间距 */
-.observation-section {
-    margin-top: 24px;
-    margin-bottom: 24px; /* 增加底部间距，拉开与 Note 的距离 */
-}
-
+/* 描述文本框与按钮的间距 */
 .example-description {
-    background-color: var(--md-sys-color-secondary-container);
-    color: var(--md-sys-color-on-secondary-container);
+    background: #E8DEF8;
     padding: 16px;
-    margin-top: 8px;
-    border-radius: var(--md-sys-shape-medium);
+    border-radius: 12px;
     font-size: 0.85rem;
     line-height: 1.6;
-    /* 增加底部外边距，拉开与下方滑块或 Note 的距离 */
-    margin-bottom: 32px; 
+    margin-top: 12px; /* 确保不紧贴按钮 */
+    min-height: 70px;
+}
+
+.note {
+	margin-top: 30px;
+	padding: 16px;
+	border: 1px dashed var(--md-sys-color-outline-variant);
+	border-radius: 12px;
+	position: relative;
+	font-size: 0.8rem;
+}
+
+.tooltip-box {
+	visibility: hidden;
+	opacity: 0;
+	position: absolute;
+	bottom: 20px;
+	left: 105%;
+	width: 280px;
+	background: #FFF;
+	padding: 16px;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+	transition: 0.3s;
+	z-index: 100;
+}
+
+.note:hover .tooltip-box {
+	visibility: visible;
+	opacity: 1;
 }
 
 @keyframes highlight-fade {
-    0% { opacity: 0.5; transform: translateY(2px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-.active { animation: highlight-fade 0.4s ease-out; }
+	from {
+		opacity: 0.5;
+	}
 
-/* --- Responsive --- */
-@media (max-width: 1100px) {
-    .container { flex-direction: column; }
-    .controls { width: auto; }
-    .tooltip-box { left: 0; bottom: 110%; width: 100%; transform: translateY(10px); }
-    .note:hover .tooltip-box { transform: translateY(0); }
+	to {
+		opacity: 1;
+	}
+}
+
+.active {
+	animation: highlight-fade 0.5s;
 }

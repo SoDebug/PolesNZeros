@@ -1,123 +1,138 @@
-// 1. 初始化数据和网格
-const resolution = 60;
-const x_range = { min: -4, max: 4 }; // 实部 σ
-const y_range = { min: -5, max: 5 }; // 虚部 jω
-let x_data = [], y_data = [];
+/**
+ * 配置与常量
+ */
+const CONFIG = {
+    res: 60,
+    xRange: [-4, 4],
+    yRange: [-5, 5],
+    zMax: 5,
+    presets: {
+        resonance: {
+            vals: [-0.2, 2.5, 0, 0],
+            label: "高Q谐振",
+            desc: "<strong>高Q谐振</strong>：极点靠近虚轴。$j\\omega$ 轴在极点频率处被强烈抬升，形成锐利的增益峰。"
+        },
+        notch: {
+            vals: [-1.0, 0, 0, 2.5],
+            label: "陷波器",
+            desc: "<strong>陷波器 (Notch)</strong>：零点精准落在虚轴。系统在该频率增益为零，可消除特定频率噪声。"
+        },
+        unstable: {
+            vals: [0.1, 2.0, 0, 0],
+            label: "不稳定系统",
+            desc: "<strong>不稳定系统</strong>：极点进入右半平面。系统产生指数级增长的响应，物理上不可持续。"
+        },
+        cancel: {
+            vals: [-2.0, 0, -2.0, 0],
+            label: "零极点抵消",
+            desc: "<strong>零极点抵消</strong>：零点与极点位置重合。能量场抵消，使得频率响应保持平滑。"
+        }
+    }
+};
 
-for (let i = 0; i <= resolution; i++) {
-    x_data.push(x_range.min + (x_range.max - x_range.min) * (i / resolution));
-    y_data.push(y_range.min + (y_range.max - y_range.min) * (i / resolution));
-}
+// 初始化网格数据
+const x_data = Array.from({length: CONFIG.res + 1}, (_, i) => CONFIG.xRange[0] + (CONFIG.xRange[1] - CONFIG.xRange[0]) * (i / CONFIG.res));
+const y_data = Array.from({length: CONFIG.res + 1}, (_, i) => CONFIG.yRange[0] + (CONFIG.yRange[1] - CONFIG.yRange[0]) * (i / CONFIG.res));
 
 /**
- * 核心计算函数：计算 S 平面上每个点的幅度 |H(s)|
+ * 核心数学计算
  */
 function calculateSurface(pr, pi, zr, zi) {
-    let z_data = [];
-    let freq_response_x = [];
-    let freq_response_y = [];
-    let freq_response_z = [];
+    const z_data = [];
+    const freq_res = { x: [], y: [], z: [] };
 
-    for (let i = 0; i < y_data.length; i++) {
-        let row = [];
-        for (let j = 0; j < x_data.length; j++) {
-            let s_real = x_data[j];
-            let s_imag = y_data[i];
-
-            // 分子 (s - zero) 的模：|s - (zr + jzi)|
-            let num = Math.sqrt(Math.pow(s_real - zr, 2) + Math.pow(s_imag - zi, 2));
+    y_data.forEach(s_imag => {
+        const row = [];
+        x_data.forEach(s_real => {
+            const num = Math.hypot(s_real - zr, s_imag - zi);
+            const den = Math.hypot(s_real - pr, s_imag - pi) * Math.hypot(s_real - pr, s_imag + pi);
+            const mag = den < 0.01 ? CONFIG.zMax * 2 : num / den;
+            const val = Math.min(mag, CONFIG.zMax);
             
-            // 分母 (s - pole) 的模。通常极点成对出现(共轭)
-            // |s - (pr + jpi)| * |s - (pr - jpi)|
-            let den1 = Math.sqrt(Math.pow(s_real - pr, 2) + Math.pow(s_imag - pi, 2));
-            let den2 = Math.sqrt(Math.pow(s_real - pr, 2) + Math.pow(s_imag - (-pi), 2));
-            let den = den1 * den2;
-            
-            // 避免除以0，并计算幅度
-            let mag = den < 0.01 ? 10 : num / den;
-
-            // 限制最大高度，防止三维图变得像一根针，影响视觉
-            row.push(Math.min(mag, 5));
-
-            // 提取虚轴上的数据 (s = jω, 即实部趋于 0 的点)
-            // 这里的 0.08 是为了在网格采样中捕捉到靠近 y 轴的线
+            row.push(val);
             if (Math.abs(s_real) < 0.08) {
-                freq_response_x.push(0);
-                freq_response_y.push(s_imag);
-                freq_response_z.push(Math.min(mag, 5.05)); // 稍微高出一点防止被曲面遮挡
+                freq_res.x.push(0);
+                freq_res.y.push(s_imag);
+                freq_res.z.push(Math.min(mag, CONFIG.zMax + 0.05));
             }
-        }
+        });
         z_data.push(row);
-    }
-    return { z_data, freq_response_x, freq_response_y, freq_response_z };
+    });
+    return { z_data, freq_res };
 }
 
 /**
- * 更新图表函数
+ * UI 渲染
  */
 function updatePlot() {
-    const pr = parseFloat(document.getElementById('pr').value);
-    const pi = parseFloat(document.getElementById('pi').value);
-    const zr = parseFloat(document.getElementById('zr').value);
-    const zi = parseFloat(document.getElementById('zi').value);
+    const getVal = (id) => parseFloat(document.getElementById(id).value);
+    const [pr, pi, zr, zi] = ['pr', 'pi', 'zr', 'zi'].map(id => {
+        const v = getVal(id);
+        document.getElementById(`val-${id}`).innerText = v.toFixed(1);
+        return v;
+    });
 
-    // 更新显示的数值
-    document.getElementById('val-pr').innerText = pr.toFixed(1);
-    document.getElementById('val-pi').innerText = pi.toFixed(1);
-    document.getElementById('val-zr').innerText = zr.toFixed(1);
-    document.getElementById('val-zi').innerText = zi.toFixed(1);
+    const { z_data, freq_res } = calculateSurface(pr, pi, zr, zi);
 
-    // 调用计算逻辑
-    const { z_data, freq_response_x, freq_response_y, freq_response_z } = calculateSurface(pr, pi, zr, zi);
-
-    const surface = {
-        z: z_data,
-        x: x_data,
-        y: y_data,
-        type: 'surface',
-        colorscale: 'Viridis',
-        opacity: 0.85,
-        showscale: false,
-        lighting: { ambient: 0.6, diffuse: 0.5, specular: 0.2 },
-    };
-
-    const freq_line = {
-        x: freq_response_x,
-        y: freq_response_y,
-        z: freq_response_z,
-        type: 'scatter3d',
-        mode: 'lines',
-        line: { color: '#1D1B20', width: 8 },
-        name: 'jω轴响应 (频响)'
-    };
+    const data = [
+        {
+            z: z_data, x: x_data, y: y_data, type: 'surface',
+            colorscale: 'Viridis', opacity: 0.85, showscale: false,
+            lighting: { ambient: 0.6, diffuse: 0.5, specular: 0.2 }
+        },
+        {
+            x: freq_res.x, y: freq_res.y, z: freq_res.z,
+            type: 'scatter3d', mode: 'lines',
+            line: { color: '#1D1B20', width: 8 }
+        }
+    ];
 
     const layout = {
-        autosize: true,
-        paper_bgcolor: 'rgba(0,0,0,0)', 
-        plot_bgcolor: 'rgba(0,0,0,0)',
+        autosize: true, paper_bgcolor: 'rgba(0,0,0,0)',
         scene: {
-            xaxis: { title: 'σ (实部)', gridcolor: '#ddd' },
-            yaxis: { title: 'jω (虚部)', gridcolor: '#ddd' },
-            zaxis: { title: '|H(s)|', range: [0, 5], gridcolor: '#ddd' },
+            xaxis: { title: 'σ (实部)' }, yaxis: { title: 'jω (虚部)' },
+            zaxis: { title: '|H(s)|', range: [0, CONFIG.zMax] },
             camera: { eye: { x: -1.25, y: -1.25, z: 1.25 } }
         },
         margin: { l: 0, r: 0, b: 0, t: 0 },
-        font: { family: 'system-ui, sans-serif', color: '#49454F' },
         showlegend: false
     };
 
-    const config = {
-        responsive: true,
-        displaylogo: false
-    };
-
-    Plotly.react('plot-div', [surface, freq_line], layout, config);
+    Plotly.react('plot-div', data, layout, { responsive: true, displaylogo: false });
 }
 
-// 2. 绑定滑块事件
-['pr', 'pi', 'zr', 'zi'].forEach(id => {
-    document.getElementById(id).addEventListener('input', updatePlot);
-});
+/**
+ * 预设应用逻辑
+ */
+function applyPreset(type) {
+    const preset = CONFIG.presets[type];
+    if (!preset) return;
 
-// 3. 页面加载完成后立即渲染一次
-document.addEventListener('DOMContentLoaded', updatePlot);
+    ['pr', 'pi', 'zr', 'zi'].forEach((id, i) => {
+        document.getElementById(id).value = preset.vals[i];
+    });
+
+    const descBox = document.getElementById('example-desc');
+    descBox.classList.remove('active');
+    void descBox.offsetWidth; 
+    descBox.classList.add('active');
+    descBox.innerHTML = preset.desc;
+
+    if (window.MathJax) MathJax.typesetPromise([descBox]);
+    updatePlot();
+}
+
+/**
+ * 事件绑定
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    ['pr', 'pi', 'zr', 'zi'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updatePlot);
+    });
+
+    document.querySelector('.note').addEventListener('mouseenter', () => {
+        if (window.MathJax) MathJax.typesetPromise();
+    });
+
+    updatePlot();
+});

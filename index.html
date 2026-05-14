@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>S平面极零点与3D频率响应可视化</title>
     <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <!-- MathJax 用于渲染数学公式 -->
+    <!-- MathJax 配置 -->
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
@@ -26,35 +26,61 @@
         <aside class="controls">
             <h3>参数控制</h3>
             
-            <div class="control-group">
-                <label>极点实部 ($\sigma$): <span id="val-pr">-1.0</span></label>
+            <!-- 极点设置组 -->
+            <section class="control-group">
+                <label for="pr">极点实部 ($\sigma$): <span id="val-pr">-1.0</span></label>
                 <input type="range" id="pr" min="-3" max="3" step="0.1" value="-1.0" />
-            </div>
-
-            <div class="control-group">
-                <label>极点虚部 ($j\omega$): <span id="val-pi">2.0</span></label>
+                
+                <label for="pi">极点虚部 ($j\omega$): <span id="val-pi">2.0</span></label>
                 <input type="range" id="pi" min="-5" max="5" step="0.1" value="2.0" />
-            </div>
+            </section>
 
             <hr class="divider" />
 
-            <div class="control-group">
-                <label>零点实部 ($\sigma$): <span id="val-zr">0.0</span></label>
+            <!-- 零点设置组 -->
+            <section class="control-group">
+                <label for="zr">零点实部 ($\sigma$): <span id="val-zr">0.0</span></label>
                 <input type="range" id="zr" min="-3" max="3" step="0.1" value="0.0" />
-            </div>
-
-            <div class="control-group">
-                <label>零点虚部 ($j\omega$): <span id="val-zi">0.0</span></label>
+                
+                <label for="zi">零点虚部 ($j\omega$): <span id="val-zi">0.0</span></label>
                 <input type="range" id="zi" min="-5" max="5" step="0.1" value="0.0" />
-            </div>
+            </section>
 
+            <hr class="divider" />
+
+            <!-- 快速探索预设 -->
+            <section class="observation-section">
+                <h4>快速探索示例</h4>
+                <div class="preset-buttons">
+                    <button class="m3-btn" onclick="applyPreset('resonance')">高Q谐振峰</button>
+                    <button class="m3-btn" onclick="applyPreset('notch')">陷波器 (Notch)</button>
+                    <button class="m3-btn" onclick="applyPreset('unstable')">不稳定系统</button>
+                    <button class="m3-btn" onclick="applyPreset('cancel')">零极点抵消</button>
+                </div>
+                <div id="example-desc" class="example-description">
+                    点击上方按钮，观察不同配置下的系统特性。
+                </div>
+            </section>
+
+            <!-- 原理提示 (放在最下方作为辅助) -->
             <div class="note">
-                <p><strong>观察指南：</strong></p>
-                <ul>
-                    <li><strong>稳定性</strong>：将极点实部拖到 $>0$ 的右半平面，系统本质上会发散。</li>
-                    <li><strong>频响曲线</strong>：曲面中间那条粗黑线，就是你在频域 $s=j\omega$ 看到的实际滤波效果。</li>
-                    <li><strong>谐振</strong>：让极点靠近黑线（实部趋于0），你会看到黑线上出现巨大的尖峰。</li>
-                </ul>
+                <div class="info-header">
+                    <strong>💡 稳定性原理</strong>
+                    <span class="info-badge">悬浮看详情</span>
+                </div>
+                <p>1. <strong>稳定性</strong>：极点位于右半平面时系统发散。</p>
+                <p>2. <strong>频响</strong>：观察 $s=j\omega$ 轴上的黑色切线。</p>
+                
+                <!-- Tooltip 浮层 -->
+                <div class="tooltip-box">
+                    <h4>稳定性深度解析</h4>
+                    <ul>
+                        <li><strong>数学本质</strong>：极点 $\sigma + j\omega$ 对应时域信号 $e^{\sigma t}$。</li>
+                        <li><strong>左半平面 ($\sigma < 0$)</strong>：信号随时间衰减，系统稳定。</li>
+                        <li><strong>右半平面 ($\sigma > 0$)</strong>：信号指数级爆炸，系统发散。</li>
+                        <li><strong>视觉表现</strong>：极点越过黑线 ($j\omega$轴) 进入右侧，即代表物理系统崩溃。</li>
+                    </ul>
+                </div>
             </div>
         </aside>
 
@@ -62,6 +88,7 @@
         <section class="plot-area" id="plot-div"></section>
     </main>
 
+    <!-- 逻辑脚本 -->
     <script src="./js/calculate.js"></script>
 </body>
 </html>

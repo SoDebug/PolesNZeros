@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S平面极零点与3D频率响应可视化</title>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <!-- MathJax 用于渲染数学公式 -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="./css/Rendering.css" />
+</head>
+<body>
+    <header>
+        <h2>S平面: 极点与零点 3D 可视化</h2>
+    </header>
+
+    <main class="container">
+        <!-- 左侧控制面板 -->
+        <aside class="controls">
+            <h3>参数控制</h3>
+            
+            <div class="control-group">
+                <label>极点实部 ($\sigma$): <span id="val-pr">-1.0</span></label>
+                <input type="range" id="pr" min="-3" max="3" step="0.1" value="-1.0" />
+            </div>
+
+            <div class="control-group">
+                <label>极点虚部 ($j\omega$): <span id="val-pi">2.0</span></label>
+                <input type="range" id="pi" min="-5" max="5" step="0.1" value="2.0" />
+            </div>
+
+            <hr class="divider" />
+
+            <div class="control-group">
+                <label>零点实部 ($\sigma$): <span id="val-zr">0.0</span></label>
+                <input type="range" id="zr" min="-3" max="3" step="0.1" value="0.0" />
+            </div>
+
+            <div class="control-group">
+                <label>零点虚部 ($j\omega$): <span id="val-zi">0.0</span></label>
+                <input type="range" id="zi" min="-5" max="5" step="0.1" value="0.0" />
+            </div>
+
+            <div class="note">
+                <p><strong>观察指南：</strong></p>
+                <ul>
+                    <li><strong>稳定性</strong>：将极点实部拖到 $>0$ 的右半平面，系统本质上会发散。</li>
+                    <li><strong>频响曲线</strong>：曲面中间那条粗黑线，就是你在频域 $s=j\omega$ 看到的实际滤波效果。</li>
+                    <li><strong>谐振</strong>：让极点靠近黑线（实部趋于0），你会看到黑线上出现巨大的尖峰。</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 右侧绘图区 -->
+        <section class="plot-area" id="plot-div"></section>
+    </main>
+
+    <script src="./js/calculate.js"></script>
+</body>
+</html>
